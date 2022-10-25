@@ -1,4 +1,6 @@
 import datetime
+from functools import wraps
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from peewee import *
 from hashlib import md5
@@ -70,9 +72,9 @@ def create_tables():
 
 
 
-# ---------------------------------------------------------------------------
-# ---------------------ROOTING-----------------------------------------------
-# ---------------------------------------------------------------------------
+# ==========================================================================================
+# ========= ROOTING ========================================================================
+# ==========================================================================================
 
 def auth_user(user):
     session['logged_in'] = True
@@ -85,12 +87,32 @@ def get_current_user():
         return User.get(User.id == session['user_id'])
 
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def login_fulfill(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('logged_in'):
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@login_fulfill
 def register():
     if request.method == 'POST' and request.form['username']:
         try:
@@ -110,6 +132,7 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@login_fulfill
 def login():
     if request.method == 'POST' and request.form['username']:
         try:
@@ -127,3 +150,9 @@ def login():
             return redirect(url_for('home'))
 
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('Log out success..')
+    return redirect(url_for('home'))

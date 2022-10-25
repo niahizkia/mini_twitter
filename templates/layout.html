@@ -13,8 +13,13 @@
         <p>{{ message }}</p>
     {% endfor %}
 
-    <a href="{{url_for('register')}}">Register</a>
-    <a href="{{url_for('login')}}">Login</a>
+    {% if not session.logged_in %}
+
+        <a href="{{url_for('register')}}">Register</a>
+        <a href="{{url_for('login')}}">Log in</a>
+    {% else%}
+        <a href="{{url_for('logout')}}">Log out</a>
+    {% endif %}
     <hr>
 
     {% block body %} {% endblock %}
