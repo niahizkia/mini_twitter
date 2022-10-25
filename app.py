@@ -1,10 +1,11 @@
 import datetime
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from peewee import *
 from hashlib import md5
 
 
 app = Flask(__name__)
+app.secret_key = 'jdfjnviuhd87432fdjkfa.kjfj'
 
 
 DATABASE = 'tweets.db'
@@ -67,6 +68,16 @@ def create_tables():
 
 
 
+def auth_user(user):
+    session['logged_in'] = True
+    session['user_id'] = user.id
+    session['username'] = user.username
+
+
+def get_current_user():
+    if session.get('logged_in'):
+        return User.get(User.id == session['user_id'])
+
 # ---------------------------------------------------------------------------
 # ---------------------ROOTING-----------------------------------------------
 # ---------------------------------------------------------------------------
@@ -86,7 +97,9 @@ def register():
                     password = md5(request.form['password'].encode('utf-8')).hexdigest(),
                     email    = request.form['email']
                 )
+            auth_user(user)
             return redirect(url_for('home'))
+
         except IntegrityError:
             return 'There something wrong'
 
@@ -95,4 +108,19 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST' and request.form['username']:
+        try:
+            hashed_pass = md5(request.form['password'].encode('utf-8')).hexdigest(),
+            user        = User.get(
+                            (User.username == request.form['username']) &
+                            (User.password == hashed_pass))
+        except User.DoesNotExist:
+            return "user does not exist"
+
+        else:
+            auth_user(user)
+            # current_user = get_current_user()
+            # return current_user.username
+            return redirect(url_for('home'))
+
     return render_template('login.html')
