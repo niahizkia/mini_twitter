@@ -91,3 +91,8 @@ def register():
             return 'There something wrong'
 
     return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html')
