@@ -3,6 +3,9 @@ from flask import Flask
 from peewee import *
 
 
+app = Flask(__name__)
+
+
 DATABASE = 'tweets.db'
 database = SqliteDatabase(DATABASE)
 
@@ -16,6 +19,18 @@ class User(BaseModel):
     email    = CharField(unique = True)
     join_at  = DateTimeField(default=datetime.datetime.now())
 
+    def following(self):
+        return(User.select()
+                   .join(Relationship, on=Relationship.to_user)
+                   .where(Relationship.from_user == self)
+                   .order_by(User.username))
+
+    def followers(self):
+        return(User.select()
+                   .join(Relationship, on=Relationship.from_user)
+                   .where(Relationship.to_user == self)
+                   .order_by(User.username))
+                   
 
 class Message(BaseModel):
     user = ForeignKeyField(User, backref = 'message')
@@ -35,13 +50,13 @@ class Relationship(BaseModel):
         )
 
 
-# @app.before_request
-# def before_request():
-#     database.connect()
+@app.before_request
+def before_request():
+    database.connect()
 
-# @app.after_request
-# def after_request():
-#     database.close()
+@app.after_request
+def after_request():
+    database.close()
 
 
 def create_tables():
