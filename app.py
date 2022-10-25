@@ -1,7 +1,7 @@
-from crypt import methods
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from peewee import *
+from hashlib import md5
 
 
 app = Flask(__name__)
@@ -56,8 +56,9 @@ def before_request():
     database.connect()
 
 @app.after_request
-def after_request():
+def after_request(response):
     database.close()
+    return response
 
 
 def create_tables():
@@ -71,10 +72,22 @@ def create_tables():
 # ---------------------------------------------------------------------------
 
 @app.route('/')
-def show_home():
+def home():
     return render_template('index.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'POST' and request.form['username']:
+        try:
+            with database.atomic():
+                user = User.create(
+                    username = request.form['username'],
+                    password = md5(request.form['password'].encode('utf-8')).hexdigest(),
+                    email    = request.form['email']
+                )
+            return redirect(url_for('home'))
+        except IntegrityError:
+            return 'There something wrong'
+
     return render_template('register.html')
