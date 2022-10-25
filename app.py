@@ -1,5 +1,6 @@
+from crypt import methods
 import datetime
-from flask import Flask
+from flask import Flask, render_template
 from peewee import *
 
 
@@ -62,3 +63,18 @@ def after_request():
 def create_tables():
     with database:
         database.create_tables([User, Relationship, Message])
+
+
+
+# ---------------------------------------------------------------------------
+# ---------------------ROOTING-----------------------------------------------
+# ---------------------------------------------------------------------------
+
+@app.route('/')
+def show_home():
+    return render_template('index.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    return render_template('register.html')
