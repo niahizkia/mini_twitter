@@ -8,6 +8,11 @@
 <body>
 
     <h1>Mini Twitter</h1>
+
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
     <a href="{{url_for('register')}}">Register</a>
     <a href="{{url_for('login')}}">Login</a>
     <hr>

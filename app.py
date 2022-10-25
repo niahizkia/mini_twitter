@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from peewee import *
 from hashlib import md5
 
@@ -68,19 +68,22 @@ def create_tables():
 
 
 
+
+
+# ---------------------------------------------------------------------------
+# ---------------------ROOTING-----------------------------------------------
+# ---------------------------------------------------------------------------
+
 def auth_user(user):
     session['logged_in'] = True
     session['user_id'] = user.id
     session['username'] = user.username
-
+    flash('Login success as '+ session['username'])
 
 def get_current_user():
     if session.get('logged_in'):
         return User.get(User.id == session['user_id'])
 
-# ---------------------------------------------------------------------------
-# ---------------------ROOTING-----------------------------------------------
-# ---------------------------------------------------------------------------
 
 @app.route('/')
 def home():
@@ -101,7 +104,7 @@ def register():
             return redirect(url_for('home'))
 
         except IntegrityError:
-            return 'There something wrong'
+            flash('Username already exist')
 
     return render_template('register.html')
 
@@ -115,7 +118,7 @@ def login():
                             (User.username == request.form['username']) &
                             (User.password == hashed_pass))
         except User.DoesNotExist:
-            return "user does not exist"
+            flash('Username or password is wrong!')
 
         else:
             auth_user(user)
