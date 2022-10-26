@@ -35,6 +35,9 @@ class User(BaseModel):
                    .where(Relationship.to_user == self)
                    .order_by(User.username))
                    
+    def is_following(self, user):
+        return (Relationship.select().where((Relationship.from_user == self)&
+                (Relationship.to_user == user)).exists())
 
 class Message(BaseModel):
     user          = ForeignKeyField(User, backref = 'messages')
@@ -191,7 +194,7 @@ def user_profile(username):
     except User.DoesNotExist:
         abort(404)
     messages = user.messages.order_by(Message.published_at.desc())
-    return render_template('profile.html', messages=messages, username=username)
+    return render_template('profile.html', messages=messages, user=user)
 
 
 @app.route('/user_follow/<username>', methods=['POST'])
@@ -211,5 +214,27 @@ def user_follow(username):
         pass
     flash('You are following '+ username +' now')
     return redirect(url_for('user_profile', username=username))
+
+
+@app.route('/user_unfollow/<username>', methods=['POST'])
+def user_unfollow(username):
+    try:
+        user = User.get(User.username == username)
+    except User.DoesNotExist:
+        abort(404)
     
+    (Relationship.delete()
+        .where(
+            (Relationship.from_user == get_current_user()) &
+            (Relationship.to_user == user))
+            .execute())
+
+    flash('You are unfollowing '+ username +' now')
+    return redirect(url_for('user_profile', username=username))
+
+    
+@app.context_processor
+def _inject_user():
+    return{'active_user': get_current_user()}
+
 # End of the line

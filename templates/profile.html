@@ -3,10 +3,16 @@
 
     <h2>Profile {{ username }}</h2>
 
-    {% if username != session.username %}
-        <form action="{{url_for('user_follow', username=username)}}" method="post">
-            <input type="submit" value="+Follow">
-        </form>
+    {% if user.username != session.username %}
+        {% if active_user.is_following(user) %}
+            <form action="{{url_for('user_unfollow', username=user.username)}}" method="post">
+                <input type="submit" value="-Unfollow">
+            </form>
+        {% else %}
+            <form action="{{url_for('user_follow', username=user.username)}}" method="post">
+                <input type="submit" value="+Follow">
+            </form>
+        {% endif %}
     {% endif %}
     <hr>
     {% for message in messages %}
