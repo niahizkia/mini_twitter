@@ -1,4 +1,6 @@
+from crypt import methods
 import datetime
+from email import message
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -37,10 +39,9 @@ class User(BaseModel):
                    
 
 class Message(BaseModel):
-    user = ForeignKeyField(User, backref = 'message')
-    password = CharField()
-    email    = CharField(unique = True)
-    join_at  = DateTimeField(default=datetime.datetime.now())
+    user          = ForeignKeyField(User, backref = 'message')
+    content       = TextField()
+    published_at  = DateTimeField(default=datetime.datetime.now())
 
 
 
@@ -73,7 +74,7 @@ def create_tables():
 
 
 # ==========================================================================================
-# ========= ROOTING ========================================================================
+# ========= HELPER FUNCTION ================================================================
 # ==========================================================================================
 
 def auth_user(user):
@@ -105,6 +106,12 @@ def login_fulfill(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+
+
+# ==========================================================================================
+# ========= ROOTING AUTHENTICATION =========================================================
+# ==========================================================================================
 
 @app.route('/')
 def home():
@@ -156,3 +163,24 @@ def logout():
     session.pop('logged_in', None)
     flash('Log out success..')
     return redirect(url_for('home'))
+
+
+
+
+# ==========================================================================================
+# ========= ROOTING TWEET ==================================================================
+# ==========================================================================================
+
+@app.route('/new', methods=['GET', 'POST'])
+@login_required
+def new_tweet():
+    user = get_current_user()
+    if request.method == 'POST' and request.form['content']:
+        message = Message.create(
+            user    = user,
+            content = request.form['content']
+        )
+
+        flash('status updated..')
+        return redirect(url_for('home'))
+    return render_template('new_tweet.html')
