@@ -1,9 +1,7 @@
-from crypt import methods
 import datetime
-from email import message
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from peewee import *
 from hashlib import md5
 
@@ -188,8 +186,30 @@ def new_tweet():
 
 @app.route('/user/<username>')
 def user_profile(username):
-    user = User.get(User.username == username)
+    try:
+        user = User.get(User.username == username)
+    except User.DoesNotExist:
+        abort(404)
     messages = user.messages.order_by(Message.published_at.desc())
     return render_template('profile.html', messages=messages, username=username)
 
+
+@app.route('/user_follow/<username>', methods=['POST'])
+def user_follow(username):
+    try:
+        user = User.get(User.username == username)
+    except User.DoesNotExist:
+        abort(404)
+    
+    try:
+        with database.atomic():
+            Relationship.create(
+                from_user = get_current_user(),
+                to_user = user,
+            )
+    except IntegrityError:
+        pass
+    flash('You are following '+ username +' now')
+    return redirect(url_for('user_profile', username=username))
+    
 # End of the line
