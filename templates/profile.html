@@ -14,7 +14,14 @@
             </form>
         {% endif %}
     {% endif %}
+
     <hr>
+
+        Followers : {{ user.followers() | length }} <br>
+        Following : {{ user.following() | length }}
+
+    <hr>
+
     {% for message in messages %}
         <p> {{ message.content }}</p>
 

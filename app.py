@@ -124,7 +124,7 @@ def home():
     user = get_current_user()
     messages = (Message.select()
                         .where((Message.user << user.following()) | 
-                                (Message.user))
+                                (Message.user == user.id))
                         .order_by(Message.published_at.desc())
     )
     return render_template('index.html', messages=messages)
