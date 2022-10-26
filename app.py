@@ -108,6 +108,10 @@ def login_fulfill(f):
     return decorated_function
 
 
+    
+@app.context_processor
+def _inject_user():
+    return{'active_user': get_current_user()}
 
 
 # ==========================================================================================
@@ -115,8 +119,15 @@ def login_fulfill(f):
 # ==========================================================================================
 
 @app.route('/')
+@login_required
 def home():
-    return render_template('index.html')
+    user = get_current_user()
+    messages = (Message.select()
+                        .where((Message.user << user.following()) | 
+                                (Message.user))
+                        .order_by(Message.published_at.desc())
+    )
+    return render_template('index.html', messages=messages)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -232,9 +243,5 @@ def user_unfollow(username):
     flash('You are unfollowing '+ username +' now')
     return redirect(url_for('user_profile', username=username))
 
-    
-@app.context_processor
-def _inject_user():
-    return{'active_user': get_current_user()}
 
 # End of the line

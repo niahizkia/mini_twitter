@@ -3,4 +3,11 @@
 
     <h2>Home Page</h2>
 
+
+    {% for message in messages %}
+        <p> {{ message.content }} - by {{ message.user.username}}</p>
+
+    {% endfor %}
+
+
 {% endblock %}
