@@ -4,21 +4,23 @@
     <h2>Profile {{ username }}</h2>
 
     {% if user.username != session.username %}
-        {% if active_user.is_following(user) %}
-            <form action="{{url_for('user_unfollow', username=user.username)}}" method="post">
-                <input type="submit" value="-Unfollow">
-            </form>
-        {% else %}
-            <form action="{{url_for('user_follow', username=user.username)}}" method="post">
-                <input type="submit" value="+Follow">
-            </form>
+        {% if session.logged_in %}
+            {% if active_user.is_following(user) %}
+                <form action="{{url_for('user_unfollow', username=user.username)}}" method="post">
+                    <input type="submit" value="-Unfollow">
+                </form>
+            {% else %}
+                <form action="{{url_for('user_follow', username=user.username)}}" method="post">
+                    <input type="submit" value="+Follow">
+                </form>
+            {% endif %}
         {% endif %}
     {% endif %}
 
     <hr>
 
-        Followers : {{ user.followers() | length }} <br>
-        Following : {{ user.following() | length }}
+        <a href="{{url_for('show_follower', username=user.username)}}">Followers : {{ user.follower() | length }} </a> <br> 
+        <a href="{{url_for('show_following', username=user.username)}}">Following : {{ user.following() | length }}</a> 
 
     <hr>
 

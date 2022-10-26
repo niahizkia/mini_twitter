@@ -29,7 +29,7 @@ class User(BaseModel):
                    .where(Relationship.from_user == self)
                    .order_by(User.username))
 
-    def followers(self):
+    def follower(self):
         return(User.select()
                    .join(Relationship, on=Relationship.from_user)
                    .where(Relationship.to_user == self)
@@ -106,6 +106,13 @@ def login_fulfill(f):
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+def getUserOrAbort(username):
+    try:
+        return User.get(User.username == username)
+    except User.DoesNotExist:
+        abort(404)
 
 
     
@@ -200,20 +207,14 @@ def new_tweet():
 
 @app.route('/user/<username>')
 def user_profile(username):
-    try:
-        user = User.get(User.username == username)
-    except User.DoesNotExist:
-        abort(404)
+    user = getUserOrAbort(username)
     messages = user.messages.order_by(Message.published_at.desc())
     return render_template('profile.html', messages=messages, user=user)
 
 
 @app.route('/user_follow/<username>', methods=['POST'])
 def user_follow(username):
-    try:
-        user = User.get(User.username == username)
-    except User.DoesNotExist:
-        abort(404)
+    user = getUserOrAbort(username)
     
     try:
         with database.atomic():
@@ -229,10 +230,7 @@ def user_follow(username):
 
 @app.route('/user_unfollow/<username>', methods=['POST'])
 def user_unfollow(username):
-    try:
-        user = User.get(User.username == username)
-    except User.DoesNotExist:
-        abort(404)
+    user = getUserOrAbort(username)
     
     (Relationship.delete()
         .where(
@@ -242,6 +240,21 @@ def user_unfollow(username):
 
     flash('You are unfollowing '+ username +' now')
     return redirect(url_for('user_profile', username=username))
+
+
+@app.route('/user/<username>/following')
+def show_following(username):
+    user = getUserOrAbort(username)
+    return render_template('user_list.html', users = user.following())
+
+
+
+@app.route('/user/<username>/follower')
+def show_follower(username):
+    user = getUserOrAbort(username)
+    return render_template('user_list.html', users = user.follower())
+
+
 
 
 # End of the line
