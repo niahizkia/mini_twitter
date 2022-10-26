@@ -39,7 +39,7 @@ class User(BaseModel):
                    
 
 class Message(BaseModel):
-    user          = ForeignKeyField(User, backref = 'message')
+    user          = ForeignKeyField(User, backref = 'messages')
     content       = TextField()
     published_at  = DateTimeField(default=datetime.datetime.now())
 
@@ -182,5 +182,14 @@ def new_tweet():
         )
 
         flash('status updated..')
-        return redirect(url_for('home'))
+        return redirect(url_for('user_profile', username = user.username))
     return render_template('new_tweet.html')
+
+
+@app.route('/user/<username>')
+def user_profile(username):
+    user = User.get(User.username == username)
+    messages = user.messages.order_by(Message.published_at.desc())
+    return render_template('profile.html', messages=messages, username=username)
+
+# End of the line
