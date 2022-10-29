@@ -132,7 +132,7 @@ def home():
     messages = (Message.select()
                         .where((Message.user << user.following()) | 
                                 (Message.user == user.id))
-                        .order_by(Message.published_at.desc()).limit(2)
+                        .order_by(Message.published_at.desc()).limit(5)
     )
     return render_template('index.html', messages=messages)
 
@@ -144,7 +144,7 @@ def loadMore(pageNum):
                         .where((Message.user << user.following()) | 
                                 (Message.user == user.id))
                         .order_by(Message.published_at.desc())
-                        .paginate(pageNum, 2)):
+                        .paginate(pageNum, 5)):
         messages[message.id] = {
             'content' : message.content,
             'username': message.user.username
@@ -213,7 +213,8 @@ def new_tweet():
     if request.method == 'POST' and request.form['content']:
         message = Message.create(
             user    = user,
-            content = request.form['content']
+            content = request.form['content'],
+            published_at = datetime.datetime.now()
         )
 
         flash('status updated..')
