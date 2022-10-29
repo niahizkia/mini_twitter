@@ -1,7 +1,7 @@
 import datetime
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort, jsonify, make_response
 from peewee import *
 from hashlib import md5
 
@@ -132,9 +132,25 @@ def home():
     messages = (Message.select()
                         .where((Message.user << user.following()) | 
                                 (Message.user == user.id))
-                        .order_by(Message.published_at.desc())
+                        .order_by(Message.published_at.desc()).limit(2)
     )
     return render_template('index.html', messages=messages)
+
+@app.route('/loadMore/<int:pageNum>')
+def loadMore(pageNum):
+    user = get_current_user()
+    messages = {}
+    for message in (Message.select()
+                        .where((Message.user << user.following()) | 
+                                (Message.user == user.id))
+                        .order_by(Message.published_at.desc())
+                        .paginate(pageNum, 2)):
+        messages[message.id] = {
+            'content' : message.content,
+            'username': message.user.username
+        }
+
+    return jsonify(messages)
 
 
 @app.route('/register', methods=['GET', 'POST'])

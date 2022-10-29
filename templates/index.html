@@ -3,7 +3,7 @@
 
     <h2>Home Page</h2>
 
-
+    <div id="tweets">
     {% for message in messages %}
         <p> {{ message.content }} - by 
         <a href="{{url_for('user_profile', username=message.user.username)}}">
@@ -11,6 +11,32 @@
         </a></p>
 
     {% endfor %}
+    </div>
 
+
+    <a href="#" id="loadMoreBtn" data-id=2>Load More</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        $('#loadMoreBtn').on('click', function(){
+            self=$(this)
+            init_page = self.attr('data-id')
+
+            $.get('/loadMore/'+init_page, function(response){
+                console.log(response)
+                if($.isEmptyObject(response))
+                    $('#loadMoreBtn').html('tidak ada tweet lagi..').delay(200).fadeOut()
+                else
+                    $.each(response, function(key, item){
+                        $('#tweets').append("<p>" + item.content + " - by " + 
+                                                "<a href=/user/'" + item.username +"'>"+ item.username +"</a>" +
+                                            "</p>")
+
+
+                        self.attr('data-id', parseInt(init_page)+1)
+                    })
+            })
+        })
+    </script>
 
 {% endblock %}
