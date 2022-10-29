@@ -1,0 +1,16 @@
+body{
+    background-color: rgb(192, 164, 192);
+    margin: 0 auto;
+    margin-top: 20px;
+    width: 60%;
+    font-family: sans-serif;
+}
+
+a{
+    color: rgb(77, 77, 77);
+}
+
+header, #flexy{
+    display: flex;
+    justify-content: space-between;
+}
