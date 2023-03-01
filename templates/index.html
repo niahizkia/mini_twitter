@@ -2,16 +2,34 @@
 {% block body %}
 
     <h2>Home Page</h2>
-
-    <div id="tweets">
-    {% for message in messages %}
-        <p> {{ message.content }} - by 
-        <a href="{{url_for('user_profile', username=message.user.username)}}">
-            {{ message.user.username}}</a> - {{ message.published_at }}</p>
-
-    {% endfor %}
+    
+    <div id="addHere">
+        {% for message in messages %}
+        <div id="tweets">
+            <div class='content'>
+                <div class="row">
+                    <div class="col">
+                            <strong><a class="name" href="{{url_for('user_profile', username=message.user.username)}}">
+                                {{ message.user.username}}</a></strong>
+                            
+                    </div>
+                    <div class="col-time">{{ message.published_at.strftime('%d-%m-%Y %H:%M') }}
+                    </div>
+                            
+                </div>
+                <p class="status"> {{ message.content }}</p>
+                <div class="row">
+                    <div class="col">
+                        ___<a href="#">Like</a>
+                    </div>
+                    <div class="col">
+                        ___<a href="#">Comments</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-
 
     <a href="#" id="loadMoreBtn" data-id=2>Load More</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -27,9 +45,10 @@
                     $('#loadMoreBtn').html('tidak ada tweet lagi..').delay(200).fadeOut()
                 else
                     $.each(response, function(key, item){
-                        $('#tweets').append("<p>" + item.content + " - by " + 
-                                                "<a href=/user/'" + item.username +"'>"+ item.username +"</a>" +
-                                            "</p>")
+                        $('#addHere').append("<div id='tweets'>"+"<div class='content'>"+"<div class='row'>"+"<div class='col'>"+"<strong>" + 
+                                                "<a class='name' href=/user/'" + item.username +"'>"+ item.username +"</a>"+"</strong>"+ 
+                                                "</div>"+"<div class='col-time'>"+item.time + "</div>" + "</div>" +
+                                                 "<p class='status'>" + item.content + "</p>" + "</div>" + "</div>")
 
 
                         self.attr('data-id', parseInt(init_page)+1)

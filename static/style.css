@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(192, 164, 192);
+    background-color: rgb(190, 201, 188);
     margin: 0 auto;
     margin-top: 20px;
     width: 60%;
@@ -13,4 +13,60 @@ a{
 header, #flexy{
     display: flex;
     justify-content: space-between;
+}
+
+#tweets{
+    background-color: rgb(187, 187, 192);
+    margin: 5px;
+    padding: 0.1px;
+}
+
+.status{
+    font-family: 'Times New Roman', Times;
+    font-size: large;
+}
+
+#time{
+    color: rgb(100, 98, 98);
+    font-family: 'Franklin Gothic Medium';
+}
+
+.name{
+    color: rgb(10, 0, 68);
+    width: 50px;
+    font-size: large;
+}
+
+.row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+  }
+
+.col {
+    position: relative;
+    width: relative;
+    height: 20px;
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+.col-time {
+    position: relative;
+    width: relative;
+    height: 20px;
+    color: rgb(100, 98, 98);
+    font-family: 'Franklin Gothic Medium';
+}
+
+.content{
+    padding-right: 15px;
+    padding-left: 15px;
+    padding-top: 15px;
 }

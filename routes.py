@@ -94,7 +94,8 @@ def loadMore(pageNum):
                         .paginate(pageNum, 5)):
         messages[message.id] = {
             'content' : message.content,
-            'username': message.user.username
+            'username': message.user.username,
+            'time' :  message.published_at
         }
 
     return jsonify(messages)
