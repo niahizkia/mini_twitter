@@ -34,6 +34,15 @@ class Message(BaseModel):
     content       = TextField()
     published_at  = DateTimeField(default=datetime.datetime.now())
 
+    def like(self):
+        return(User.select()
+                   .join(Likes, on=Likes.by_user)
+                   .where(Likes.message == self)
+                   .order_by(User.username))
+                   
+    def is_a_likers(self, user):
+        return (Likes.select().where((Likes.message == self)&
+        (Likes.by_user == user)).exists())
 
 
 class Relationship(BaseModel):
@@ -43,4 +52,14 @@ class Relationship(BaseModel):
     class Meta:
         indexes = (
             (('from_user', 'to_user'), True),
+        )
+
+
+class Likes(BaseModel):
+    message = ForeignKeyField(Message, backref='content')
+    by_user = ForeignKeyField(User, backref='user')
+
+    class Meta:
+        indexes = (
+            (('message', 'by_user'), True),
         )

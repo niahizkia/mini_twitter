@@ -3,7 +3,7 @@ import datetime
 from app import app, database
 from functools import wraps
 from flask import render_template, request, redirect, url_for, session, flash, abort, jsonify, make_response
-from models import User, Relationship, Message
+from models import User, Relationship, Message, Likes
 from peewee import IntegrityError
 from hashlib import md5
 
@@ -61,7 +61,11 @@ def getUserOrAbort(username):
     except User.DoesNotExist:
         abort(404)
 
-
+def getStatusOrAbort(id):
+    try:
+        return Message.get(Message.id == id)
+    except User.DoesNotExist:
+        abort(404)
     
 @app.context_processor
 def _inject_user():
@@ -81,7 +85,7 @@ def home():
                                 (Message.user == user.id))
                         .order_by(Message.published_at.desc()).limit(5)
     )
-    return render_template('index.html', messages=messages)
+    return render_template('index.html', messages=messages, user=user)
 
 @app.route('/loadMore/<int:pageNum>')
 def loadMore(pageNum):
@@ -221,5 +225,31 @@ def show_follower(username):
 
 
 
+@app.route('/like/<content>', methods=['POST'])
+def like(content):
+    content = getStatusOrAbort(content)
+
+    try:
+        with database.atomic():
+            Likes.create(
+                message = content,
+                by_user = get_current_user(),
+            )
+    except IntegrityError:
+        pass
+    return redirect(url_for('home'))
+
+
+@app.route('/dislike/<content>', methods=['POST'])
+def dislike(content):
+    content = getStatusOrAbort(content)
+    
+    (Likes.delete()
+        .where(
+            (Likes.by_user == get_current_user()) &
+            (Likes.message == content))
+            .execute())
+
+    return redirect(url_for('home'))
 
 # End of the line
