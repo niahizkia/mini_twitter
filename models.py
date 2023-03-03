@@ -56,7 +56,7 @@ class Relationship(BaseModel):
 
 
 class Likes(BaseModel):
-    message = ForeignKeyField(Message, backref='content')
+    message = ForeignKeyField(Message, backref='content_id')
     by_user = ForeignKeyField(User, backref='user')
 
     class Meta:
