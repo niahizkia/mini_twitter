@@ -59,8 +59,10 @@
                                                 "<a class='name' href=/user/'" + item.username +"'>"+ item.username +"</a>"+"</strong>"+ 
                                                 "</div>"+"<div class='col-time'>"+item.time + "</div>" + "</div>" +
                                                 "<p class='status'>" + item.content + "</p>" + "<div class='row'>"+
-                                                "<div class='col'>" + "<form action='' method='post'>" + "<input type='submit' value='Like'>"+
-                                                "</form>"+"</div>"+"<div class='col'>"+"<form action='' method='post'>"+
+                                                "<div class='col'>" + "{% if"+ item.liker +" == True %}" + "<form action=/dislike/" + item.id+ " method='post'>" +
+                                                item.like + "<input type='submit' value='Unlike'>"+
+                                                "</form>"+ "{% else %}" + "<form action=/like/" + item.id +" method='post'>"+ item.like +
+                                                "<input type='submit' value='Like'>" + "</form>" + "{% endif %}" + "</div>" +"</div>"+"<div class='col'>"+"<form action='' method='post'>"+
                                                 "<input type='submit' value='Comment'>"+"</form>"+"</div>"+"</div>" + "</div>" + "</div>")
 
 

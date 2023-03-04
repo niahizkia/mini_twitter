@@ -96,10 +96,18 @@ def loadMore(pageNum):
                                 (Message.user == user.id))
                         .order_by(Message.published_at.desc())
                         .paginate(pageNum, 5)):
+        total_like = len(message.like())
+        liker = message.is_a_likers(user=user)
+        print(liker)
+        print(message.id)
+        print(total_like)
         messages[message.id] = {
-            'content' : message.content,
-            'username': message.user.username,
-            'time' :  message.published_at
+            'content'   : message.content,
+            'username'  : message.user.username,
+            'time'      : message.published_at,
+            'id'        : message.id,
+            'like'      : total_like,
+            'liker'     : liker
         }
 
     return jsonify(messages)
