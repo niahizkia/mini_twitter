@@ -83,7 +83,7 @@ def home():
     messages = (Message.select()
                         .where((Message.user << user.following()) | 
                                 (Message.user == user.id))
-                        .order_by(Message.published_at.desc()).limit(5)
+                        .order_by(Message.published_at.desc()).limit(10)
     )
     return render_template('index.html', messages=messages, user=user)
 
